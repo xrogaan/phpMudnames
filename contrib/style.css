@@ -1,0 +1,21 @@
+body {
+	background-color: #F1F1F1;
+	font-family:"Helvetica" , sans-serif;
+	font-size: 0.8em;
+}
+div#main {
+	margin: 0 auto;
+	padding: 1em; 
+	background-color: #D0EEFF;
+	width: 800px;
+	border: 1px solid #007EC7;
+}
+div#main h1 {
+	margin: 0.5em 0;
+	border-bottom: 1px solid gray;
+	
+}
+
+acronym {
+	cursor: help;
+}
