@@ -1,7 +1,7 @@
 <?php
 /**
  *  This code was inspired by MudNames by Ragnar Hojland Espinosa. <ragnar (at) ragnar-hojland (dot) com>
- *  This php version was written by Xrogaan. <guru (at) xrogaan (dot) be>
+ *  This php version was written by Xrogaan. <xrogaan - gmail - com>
  *
  * @author xrogaan <xrogaan - gmail - com> (c) 2009
  * @license http://opensource.org/licenses/mit-license.php MIT license
@@ -119,7 +119,7 @@ class mudnames_dico {
 
 		if (!$this->forcedcap) {
 			if (count($this->capabilities)>1) {
-				$this->currentcap = $this->capabilities[mt_rand(0, count($this->capabilities) - 1)];
+				$this->currentcap = $this->capabilities[rand(0, count($this->capabilities) - 1)];
 			} elseif (count($this->capabilities) == 1) {
 				$this->currentcap = $this->capabilities[0];
 			} else {
@@ -289,10 +289,10 @@ class mudnames {
 				$capability = 'XX';
 				break;
 			case 'XA':
-				$capability = 'N' . (mt_rand(0,1) ? 'A' : 'X' );
+				$capability = 'N' . (rand(0,1) ? 'A' : 'X' );
 				break;
 			case 'NX':
-				$capability = (mt_rand(0, 1) ? 'N' : 'A') . 'A';
+				$capability = (rand(0, 1) ? 'N' : 'A') . 'A';
 				break;
 			default:
 				$capability = $current_cap;
