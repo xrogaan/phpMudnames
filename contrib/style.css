@@ -1,21 +1,42 @@
 body {
-	background-color: #F1F1F1;
+	background-color: white;
 	font-family:"Helvetica" , sans-serif;
 	font-size: 0.8em;
 }
 div#main {
 	margin: 0 auto;
 	padding: 1em; 
-	background-color: #D0EEFF;
+	background-color: #e9b96e;
 	width: 800px;
-	border: 1px solid #007EC7;
+	border: 1px solid #c17d11;
 }
 div#main h1 {
 	margin: 0.5em 0;
-	border-bottom: 1px solid gray;
+	border-bottom: 1px solid #c17d11;
 	
+}
+
+a {
+	color: #8f5902;
+	text-decoration: underline;
+}
+
+a:hover {
+	color: #c17d11;
+}
+
+a:visited {
+	color: #c17d11;
+	text-decoration: none;
 }
 
 acronym {
 	cursor: help;
+}
+
+hr {
+	background-color: #c17d11;
+	color: #c17d11;
+	border: 0;
+	height: 1px;
 }
