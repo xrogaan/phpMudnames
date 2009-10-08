@@ -277,7 +277,9 @@ class mudnames {
 		$this->info['dictionnaries'][] = $file;
 		$this->current_file = $file;
 		
-		$this->dictionnary[$file] = new mudnames_dico($file);
+		if (!isset($this->dictionnary[$file])) {
+			$this->dictionnary[$file] = new mudnames_dico($file);
+		}
 		
 		$current_cap = $this->dictionnary[$file]->select_capability();
 		
