@@ -320,6 +320,7 @@ class mudnames {
 		switch ($tag) {
 			case 'file_used':
 				$tag = 'dictionnaries';
+				return $this->current_file;
 			case 'capability':
 				return $this->info['capability'][$this->current_file];
 				break;
