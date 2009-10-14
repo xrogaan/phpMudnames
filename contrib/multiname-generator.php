@@ -16,3 +16,5 @@ while ($number > 0) {
 }
 
 echo implode('<br />', $names);
+
+echo "<br/><br/>Memory peak ~" , round(memory_get_peak_usage()/1024, 2) , "ko";
