@@ -12,13 +12,17 @@
 
 class mudnames_dico {
 
+	/**
+	 * Name's Particles
+	 * Currently used : PRE, MID, SUF.
+	 */
 	protected $particle = array(
 		'PRE' => 'P',  'MID' => 'M',  'SUF'  => 'S',
 		'NOUN' => 'N', 'ADJ' => 'A',  'NADJ' => 'X',
 	);
 
 	/**
-	 * Capacitées : associations des parties de nom disponible.
+	 * Capability : different possibilities of connection between several particles
 	 */
 	protected $caplist = array(
 		"PS", "PMS", "PM", "N", "X",
