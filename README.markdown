@@ -7,3 +7,5 @@ Here, it's only the generator part.
 
 I have added some .cap file to force capability of the dictionnary. Feel
 free to explore all possibilities ;)
+
+For more information, please read the [documentation](http://wiki.github.com/xrogaan/phpMudnames/howto-use).
