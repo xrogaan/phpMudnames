@@ -316,6 +316,16 @@ class mudnames {
 		return ucfirst($name);
 	}
 	
+	public function generates_several_names($number, $file='') {
+		$number = (int) $number;
+		
+		$names = array();
+		while($number-- > 0) {
+			$names[] = self::generate_name_from($file);
+		}
+		return $names;
+	}
+	
 	/**
 	 * for debug purpose
 	 */
