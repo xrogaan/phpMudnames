@@ -62,7 +62,7 @@ class mudnames_dico {
 				$buffer = fgets($handle, 4096);
 
 				if (strpos($buffer,'#') === 0) {
-					$current_part = str_replace(array("\n",'#'),'',$buffer);
+					$current_part = ltrim(rtrim($buffer,"\r\n"),'#');
 					if (array_key_exists($current_part,$this->particle)) {
 						$this->file_particles[$current_part] = array();
 					} else {
@@ -70,7 +70,7 @@ class mudnames_dico {
 					}
 				}
 				elseif (strlen($buffer) > 1 && strpos($buffer,'-----') === false)
-					$this->file_particles[$current_part][] = str_replace("\n",'',$buffer);
+					$this->file_particles[$current_part][] = rtrim($buffer,"\r\n");
 				elseif (strlen($buffer) === 1)
 					continue;
 
@@ -141,6 +141,9 @@ class mudnames_dico {
 	 *
 	 * Si un tel fichier existe, cette fonction charge les actions prédéterminées du fichier.
 	 * le .cap sert en général a forcer la capacité du dictionnaire.
+	 *
+	 * .cap files format :
+	 * [functionName][:arguments]
 	 */
 	private function check_cap_file() {
 		// Non-lethal error here. If we can't open it, we leave it alone.
@@ -166,7 +169,7 @@ class mudnames_dico {
 						if ($function != 'void' && !method_exists($this,$function)) {
 							trigger_error('Method `<em>'.$function.'</em>` does\'nt exists',E_USER_WARNING);
 						} else {
-							$this->forced_capability[$function] = explode(',',str_replace("\n",'',trim($args)));
+							$this->forced_capability[$function] = explode(',',trim($args));
 						}
 
 					}
