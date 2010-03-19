@@ -5,7 +5,7 @@
  *
  * @author xrogaan <xrogaan - gmail - com> (c) 2009
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.2
+ * @version 1.3
  * 
  * 
  */
