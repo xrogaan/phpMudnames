@@ -52,7 +52,7 @@ class mudnames_dico {
 			trigger_error('File <em>'.$this->directory . $this->file.'</em> not found',E_USER_ERROR);
 		}
 
-		$handle = fopen($this->directory . $this->file,'r');
+		$handle = @fopen($this->directory . $this->file,'r');
 
 		if ($handle) {
 			$line = 0;
@@ -77,6 +77,8 @@ class mudnames_dico {
 			}
 			fclose($handle);
 			
+		} else {
+			throw new Exception("Can't open dictonnary file ".$this->directory . $this->file);
 		}
 		
 		$check_particle = array_keys($this->file_particles);
@@ -141,10 +143,11 @@ class mudnames_dico {
 	 * le .cap sert en général a forcer la capacité du dictionnaire.
 	 */
 	private function check_cap_file() {
-		if (file_exists($this->directory . $this->file . '.cap')) {
-			
+		// Non-lethal error here. If we can't open it, we leave it alone.
+		if (file_exists($this->directory . $this->file . '.cap') && is_readable($this->directory . $this->file . '.cap')) {
+
 			$this->forced_cap = true;
-			$handle = fopen($this->directory . $this->file . '.cap','r');
+			$handle = @fopen($this->directory . $this->file . '.cap','r');
 
 			if ($handle) {
 				while (!feof($handle))
