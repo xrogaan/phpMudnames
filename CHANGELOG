@@ -1,0 +1,14 @@
+RELEASE 1.4
+CHANGES SINCE 1.3:
+================================================================================
+MAJOR CHANGES:
+ * Complete rewrite of the objects
+ * Mudnames now use statics method to generate names (GH-4)
+ * Mudnames is no longer the main object
+ * Some functions and object are renamed
+
+MINOR CHANGES:
+ * Improve statistics components (GH-1)
+
+BUG FIXEX:
+ * Fix a bug while creating the list of capabilities of a dictionnary
