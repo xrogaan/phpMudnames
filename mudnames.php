@@ -63,14 +63,13 @@ class Mudnames_Dictionnaries {
             case 'random':
                 $keys = array_flip($this->_dictionnaries);
                 $name = $keys[rand(0,count($keys)-1)];
-                return new Mudnames_Dictionnaries($this->_dictionnaries[$fileChoosed]);
             default:
-                if (self::dictionnary_exists($name)) {
-                    return new Mudnames_Dictionnaries($this->_dictionnaries[$name]);
-                } else {
+                if (!self::dictionnary_exists($name)) {
                     throw new UnexpectedValueException("Dictionnary '$name' doesn't exists.");
                 }
         }
+        $this->_dictionnaries_instance[$name] = new Mudnames_Dictionnaries($this->_dictionnaries[$name]);
+        return $this->_dictionnaries_instance[$name];
     }
 }
 
@@ -324,7 +323,7 @@ class Mudnames_Dictionnary {
 
 }
 
-class mudnames {
+class Mudnames {
 	private $directory;
 	private $files = array();
 	private $dictionnary;
