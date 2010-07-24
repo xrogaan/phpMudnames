@@ -60,6 +60,7 @@ class Mudnames_Dictionnaries {
 
     public function open_dictionnary($name='random') {
         switch ($name) {
+            case '':
             case 'random':
                 $keys = array_flip($this->_dictionnaries);
                 $name = $keys[rand(0,count($keys)-1)];
