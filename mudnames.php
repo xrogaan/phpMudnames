@@ -5,9 +5,7 @@
  *
  * @author xrogaan <xrogaan - gmail - com> (c) 2009
  * @license http://opensource.org/licenses/mit-license.php MIT license
- * @version 1.3
- * 
- * 
+ * @version 1.4
  */
 
 
@@ -24,6 +22,8 @@ class Mudnames_Dictionnaries {
 		"PS", "PMS", "PM", "N", "X",
 		"NA", "XA" , "NX"
 	);
+
+    public $_actions = array();
 
     /**
      * Build a list of files as dictionnaries list.
@@ -43,9 +43,13 @@ class Mudnames_Dictionnaries {
 
         $dh = opendir($this->_directory);
         while(false !== ($file = readdir($dh))) {
+            if ($file[0] == '.' || substr($file,-4) == '.cap') {
+				continue;
+			}
             $this->_dictionnaries[$file] = $this->_directory . $file;
         }
         closedir($dh);
+        sort($this->_dictionnaries);
     }
 
     /**
@@ -59,6 +63,11 @@ class Mudnames_Dictionnaries {
     }
 
     public function open_dictionnary($name='random') {
+        
+        if (isset($this->_dictionnaries_instance[$name])) {
+            return $this->_dictionnaries_instance[$name];
+        }
+
         switch ($name) {
             case '':
             case 'random':
@@ -69,8 +78,48 @@ class Mudnames_Dictionnaries {
                     throw new UnexpectedValueException("Dictionnary '$name' doesn't exists.");
                 }
         }
-        $this->_dictionnaries_instance[$name] = new Mudnames_Dictionnaries($this->_dictionnaries[$name]);
+        $this->_dictionnaries_instance[$name] = new Mudnames_Dictionnary($this->_dictionnaries[$name]);
+
+        $this->_actions['dictionnaries'][$name]['capabilities'] = $this->_dictionnaries_instance[$name]->get_file_capability_list();
+        $this->_actions['dictionnaries'][$name]['file'] = $this->_dictionnaries_instance[$name]->__toString();
+        $this->_actions['dictionnaries'][$name]['is_forced'] = $this->_dictionnaries_instance[$name]->is_forced();
+
         return $this->_dictionnaries_instance[$name];
+    }
+
+    public function get_name($dictionnary) {
+        $current_cap = $this->_dictionnaries_instance[$dictionnary]->select_capability();
+
+		switch ($current_cap) {
+			case 'N':
+				$capability = 'NN';
+				break;
+			case 'X':
+				$capability = 'XX';
+				break;
+			case 'XA':
+				$capability = 'N' . (rand(0,1) ? 'A' : 'X' );
+				break;
+			case 'NX':
+				$capability = (rand(0, 1) ? 'N' : 'A') . 'A';
+				break;
+			default:
+				$capability = $current_cap;
+		}
+
+		$name = '';
+		for ($i = 0, $len = strlen($capability); $i < $len; $i++) {
+			$particle = $this->_dictionnaries_instance[$dictionnary]->plite2full($capability[$i]);
+			$name.= $this->_dictionnaries_instance[$dictionnary]->random_particle_from($particle);
+		}
+
+        $name = ucfirst($name);
+        $this->_actions['dictionnaries'][$dictionnary]['generated'][$name] = array (
+            'capability' => $capability,
+            'particles' => $particle
+        );
+
+		return $name;
     }
 }
 
@@ -325,9 +374,11 @@ class Mudnames_Dictionnary {
 }
 
 class Mudnames {
+    protected static $_instance = null;
+
 	private $directory;
 	private $files = array();
-	private $dictionnary;
+	private $_dictionnaries;
 	private $particle_used = array();
 	private $capability;
 	
@@ -338,110 +389,37 @@ class Mudnames {
 		'is_forced' => false,
 	);
 	
-	function __construct($directory = './data') {
-		$this->directory = realpath($directory) . '/';
-		
-		if ( !$dir = opendir($this->directory))
-			return false;
-		$r = array();
+	protected function __construct($config='') {
+        if (!empty($config)) {
+            $this->_dictionnaries = new Mudnames_Dictionnaries($config);
+        } else {
+            $this->_dictionnaries = new Mudnames_Dictionnaries();
+        }
+	}
 
-		while (($file = readdir($dir)) !== false) {
+    public static function getInstance($config = array(), $auto_create = true)
+    {
+        if ((bool) $auto_create && is_null(static::$_instance)) {
+            static::init($config);
+        }
+        return static::$_instance;
+    }
+	
+	public static function generate_name_from($file='') {
 
-			// On ignore les fichiers caché et les fichier de capacités
-			if ($file[0] == '.' || substr($file,-4) == '.cap') {
-				continue;
-			}
+        $mudnames = Mudnames::getInstance();
+        $dictionnary = $mudnames->_dictionnaries->open_dictionnary($file);
+        $mudnames->_dictionnaries->get_name($file);
+        
+	}
 
-			if (is_file($this->directory.$file)) {
-				$this->files[] = $file;
-			}
-		}
-		sort($this->files);
-	}
-	
-	public function generate_name_from($file='') {
-		if (empty($file) || $file == "random") {
-			$file = $this->files[rand(0,count($this->files)-1)];
-		} else {
-			if (!in_array($file,$this->files)) {
-				trigger_error('file '.$file." doesn't exists", E_USER_ERROR);
-			}
-		}
-		
-		$this->info['dictionnaries'][] = $file;
-		$this->current_file = $file;
-		
-		if (!isset($this->dictionnary[$file])) {
-			$this->dictionnary[$file] = new mudnames_dico($file);
-		}
-		
-		$current_cap = $this->dictionnary[$file]->select_capability();
-		
-		switch ($current_cap) {
-			case 'N':
-				$capability = 'NN';
-				break;
-			case 'X':
-				$capability = 'XX';
-				break;
-			case 'XA':
-				$capability = 'N' . (rand(0,1) ? 'A' : 'X' );
-				break;
-			case 'NX':
-				$capability = (rand(0, 1) ? 'N' : 'A') . 'A';
-				break;
-			default:
-				$capability = $current_cap;
-		}
-		
-		$this->info['capability'][$file] = $capability;
-		
-		$name = '';
-		for ($i = 0, $len = strlen($capability); $i < $len; $i++) {
-			$particle = $this->dictionnary[$file]->plite2full($capability[$i]);
-			$this->info['particles_used'][] = $particle;
-			$name.= $this->dictionnary[$file]->random_particle_from($particle);
-		}
+    public static function generates_several_names($number, $file='') {
+        $number = (int) $number;
 
-		return ucfirst($name);
-	}
-	
-	public function generates_several_names($number, $file='') {
-		$number = (int) $number;
-		
-		$names = array();
-		while($number-- > 0) {
-			$names[] = self::generate_name_from($file);
-		}
-		return $names;
-	}
-	
-	/**
-	 * for debug purpose
-	 */
-	public function get_info($tag) {
-		$tag = strtr($tag,' ','_');
-		switch ($tag) {
-			case 'file_used':
-				$tag = 'dictionnaries';
-				return $this->current_file;
-			case 'capability':
-				return $this->info['capability'][$this->current_file];
-				break;
-			case 'is_forced':
-				return $this->dictionnary[$this->current_file]->is_forced();
-				break;
-			case 'capability_list':
-				return implode(', ', $this->dictionnary[$this->current_file]->get_file_capability_list());
-				break;
-			case 'particles_used':
-				return $this->dictionnary[$this->current_file]->debug['particles_used'];
-			default:
-				return "info not found";
-		}
-	}
-	
-	public function get_file_list() {
-		return $this->files;
-	}
+        $names = array();
+        while($number-- > 0) {
+            $names[] = static::generate_name_from($file);
+        }
+        return $names;
+    }
 }
