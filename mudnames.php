@@ -10,90 +10,172 @@
  * 
  */
 
-class mudnames_dico {
 
-	/**
-	 * Name's Particles
-	 * Currently used : PRE, MID, SUF.
-	 */
-	protected $particle = array(
-		'PRE' => 'P',  'MID' => 'M',  'SUF'  => 'S',
-		'NOUN' => 'N', 'ADJ' => 'A',  'NADJ' => 'X',
-	);
+class Mudnames_Dictionnaries {
+
+    protected $_directory;
+    protected $_dictionnaries = array();
+    protected $_dictionnaries_instance = array();
 
 	/**
 	 * Capability : different possibilities of connection between several particles
 	 */
-	protected $caplist = array(
+	private $_caplist = array(
 		"PS", "PMS", "PM", "N", "X",
 		"NA", "XA" , "NX"
 	);
-	
-	protected $capabilities = array();
-	
-	protected $file;
-	protected $directory;
-	protected $forcedcap;
-	protected $file_particles;
-	public $debug;
-	
-	/**
-	 * Va charger le contenu du dictionnaire de nom '$file', classifier ses différentes parties ($particles)
-	 * dans $file_particles et va détecter des différentes capacités du dictionnaire de nom (association possible
-	 * de différentes parties).
-	 *
-	 *
+
+    /**
+     * Build a list of files as dictionnaries list.
+     *
+     * @param string $directory directory where the dictionnaries can be found
+     */
+    public function __construct($directory='./data/') {
+        if (!file_exists($directory)) {
+            throw new InvalidArgumentException ('Directory \''. $directory . '\' doesn\'t exists.');
+        }
+
+        if (!is_dir($directory)) {
+            throw new InvalidArgumentException ('Directory \''. $directory . '\' isn\'t a directory.');
+        }
+
+        $this->_directory = $directory;
+
+        $dh = opendir($this->_directory);
+        while(false !== ($file = readdir($dh))) {
+            $this->_dictionnaries[$file] = $this->_directory . $file;
+        }
+        closedir($dh);
+    }
+
+    /**
+     * Return true if the dictionnary file exists. If not, return false.
+     *
+     * @param string $name dictionnary name
+     * @return boolean
+     */
+    public function dictionnary_exists($name) {
+        return array_key_exists($name, $this->_dictionnaries);
+    }
+
+    public function open_dictionnary($name='random') {
+        switch ($name) {
+            case 'random':
+                $keys = array_flip($this->_dictionnaries);
+                $name = $keys[rand(0,count($keys)-1)];
+                return new Mudnames_Dictionnaries($this->_dictionnaries[$fileChoosed]);
+            default:
+                if (self::dictionnary_exists($name)) {
+                    return new Mudnames_Dictionnaries($this->_dictionnaries[$name]);
+                } else {
+                    throw new UnexpectedValueException("Dictionnary '$name' doesn't exists.");
+                }
+        }
+    }
+}
+
+class Mudnames_Dictionnary {
+    /**
+	 * Name's Particles
+	 * Currently used : PRE, MID, SUF.
 	 */
-	function __construct($file, $directory = './data/') {
-		$this->file = $file;
-		$this->directory = realpath($directory) . '/';
-		
-		if (!file_exists($this->directory . $this->file)) {
-			trigger_error('File <em>'.$this->directory . $this->file.'</em> not found',E_USER_ERROR);
-		}
+	private $_particle = array(
+		'PRE' => 'P',  'MID' => 'M',  'SUF'  => 'S',
+		'NOUN' => 'N', 'ADJ' => 'A',  'NADJ' => 'X',
+	);
 
-		$handle = @fopen($this->directory . $this->file,'r');
+    protected $capabilities = array();
+    protected $dictionnary_name;
 
-		if ($handle) {
-			$line = 0;
-			while (!feof($handle))
-			{
-				$line++;
-				$buffer = fgets($handle, 4096);
+    /**
+     * true if the capabilities isn't random
+     * @var boolean
+     */
+    protected $forcedcap;
 
-				if (strpos($buffer,'#') === 0) {
-					$current_part = ltrim(rtrim($buffer,"\r\n"),'#');
-					if (array_key_exists($current_part,$this->particle)) {
-						$this->file_particles[$current_part] = array();
-					} else {
-						trigger_error ($this->directory.$this->file . ":$line: Unknow particle '$current_part'.",E_USER_WARNING);
-					}
-				}
-				elseif (strlen($buffer) > 1 && strpos($buffer,'-----') === false)
-					$this->file_particles[$current_part][] = rtrim($buffer,"\r\n");
-				elseif (strlen($buffer) === 1)
-					continue;
+    /**
+     * Capabilities if forced.
+     */
+    protected $forced_capability;
+    
+    /**
+     * File's particles list.
+     * @var array
+     */
+    protected $file_particles = array();
 
-			}
-			fclose($handle);
-			
-		} else {
-			throw new Exception("Can't open dictonnary file ".$this->directory . $this->file);
-		}
-		
-		$check_particle = array_keys($this->file_particles);
-		foreach($check_particle as $k => $v) { $check_particle[$k] = self::pfull2lite($v); }
-		$parts = implode('',$check_particle);
-		// génère un liste de capacité selon les différentes parties de nom présente dans le fichier
-		foreach ($this->caplist as $capability)
-		{
-			if (strpos($parts, $capability) !== false) {
-				$this->capabilities[] = $capability;
-			}
-		}
-	}
-	
-	/**
+    public $debug;
+
+    private $filename;
+
+    public function __construct($filename) {
+        if (file_exists($filename)) {
+            $this->filename = $filename;
+        } else {
+            throw new InvalidArgumentException('File <em>' . $filename . '</em> not found');
+        }
+
+        $line = 0;
+        $handle = @fopen($this->filename, 'r');
+
+        if ($handle === false) {
+            throw new RuntimeException('Can not open file ' . $this->filename . '.');
+        }
+
+        while (!feof($handle)) {
+            $line++;
+            $buffer = fgets($handle, 4096);
+            if (strpos($buffer,'#') === 0) {
+                $current_part = ltrim(rtrim($buffer,"\r\n"),'#');
+                if (array_key_exists($current_part,$this->_particle)) {
+                    $this->file_particles[$current_part] = array();
+                } else {
+                    trigger_error ($this->filename . ":$line: Unknow particle '$current_part'.", E_USER_WARNING);
+                }
+            } elseif (strlen($buffer) > 1 && strpos($buffer,'-----') === false) {
+                $this->file_particles[$current_part][] = rtrim($buffer,"\r\n");
+            } elseif (strlen($buffer) === 1) {
+                continue;
+            }
+        }
+        fclose($handle);
+
+        self::set_capabilities();
+    }
+
+    public function set_capabilities() {
+        // Build the acronym to know the capacity of the file.
+        $check_particle = array_map(array($this, 'pfull2lite'), array_keys($this->file_particles));
+        
+        if (in_array('P', $check_particle) && in_array('S', $check_particle)) {
+            $this->capabilities[] = 'PS';
+            if (in_array('M', $check_particle)) {
+                $this->capabilities[] = 'PMS';
+            }
+        }
+
+        if (in_array('N', $check_particle) && in_array('A', $check_particle)) {
+            $this->capabilities[] = 'NA';
+        }
+
+        if (in_array('N', $check_particle) && in_array('X', $check_particle)) {
+            $this->capabilities[] = 'NX';
+        }
+
+        if (in_array('X', $check_particle) && in_array('A', $check_particle)) {
+            $this->capabilities[] = 'XA';
+        }
+
+        if (in_array('N', $check_particle)) {
+            $this->capabilities[] = 'N';
+        }
+
+        if (in_array('X', $check_particle)) {
+            $this->capabilities[] = 'X';
+        }
+    }
+
+    /**
 	 * Détecte si un fichier doit avoir une génération statique de noms.
 	 */
 	function force_capability($cap) {
@@ -109,9 +191,9 @@ class mudnames_dico {
 	 * Sélectionne une association de capacité de façons aléatoire et la retourne.
 	 */
 	public function select_capability() {
-		
+
 		self::check_cap_file();
-		
+
 		// If a forced capability exists, we apply it.
 		if (!empty($this->forced_capability)) {
 			foreach ($this->forced_capability as $fnct => $args) {
@@ -132,33 +214,35 @@ class mudnames_dico {
 				trigger_error ($this->directory.$this->file . ":select_capability: No capability found.",E_USER_WARNING);
 			}
 		}
-		
+
 		return $this->currentcap;
 	}
-	
+
 	/**
-	 * Vérifie si un fichier .cap est présent pour le dictionnaire chargé dans l'objet.
+	 * Check if a capability file is present for the current file.
 	 *
-	 * Si un tel fichier existe, cette fonction charge les actions prédéterminées du fichier.
-	 * le .cap sert en général a forcer la capacité du dictionnaire.
+     * If it's present, its content is loaded into the core. It is usefull
+     * to force actions in the choice of particles. Some dictionnary have 3
+     * set of particles like 'PMS', but if the object return only a name
+     * containing the parts 'P' and 'S', the name could mean absolutly nothing.
+     * So, the capability file is here to force the object to get the full
+     * capacities of the dictionnary by triggering the method self::force_capability().
 	 *
 	 * .cap files format :
 	 * [functionName][:arguments]
 	 */
 	private function check_cap_file() {
 		// Non-lethal error here. If we can't open it, we leave it alone.
-		if (file_exists($this->directory . $this->file . '.cap') && is_readable($this->directory . $this->file . '.cap')) {
+		if (file_exists($this->filename. '.cap') && is_readable($this->filename . '.cap')) {
 
 			$this->forced_cap = true;
-			$handle = @fopen($this->directory . $this->file . '.cap','r');
+			$handle = @fopen($this->filename . '.cap', 'r');
 
 			if ($handle) {
-				while (!feof($handle))
-				{
+				while (!feof($handle)) {
 					$buffer = fgets($handle, 4096);
 
-					if (!empty($buffer))
-					{
+					if (!empty($buffer)) {
 						if (ctype_lower($buffer[0])) {
 							list($function, $args) = explode(':',$buffer);
 						} else {
@@ -171,7 +255,6 @@ class mudnames_dico {
 						} else {
 							$this->forced_capability[$function] = explode(',',trim($args));
 						}
-
 					}
 				} // -- end while
 				fclose($handle);
@@ -181,29 +264,29 @@ class mudnames_dico {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Sors une partie de nom aléatoire selon le tag et le fichier associé.
 	 */
 	public function random_particle_from($particle) {
 		if (!isset($this->file_particles[$particle]))
-			trigger_error ($this->directory.$this->file . ":load_random_particle: Unknow particle '$particle'.",E_USER_WARNING);
-		
+			trigger_error ($this->filename . ":load_random_particle: Unknow particle '$particle'.",E_USER_WARNING);
+
 		if (empty($this->file_particles[$particle]))
 			return '';
-		
+
 		do {
 			$randomId = rand(0,count($this->file_particles[$particle])-1);
 			if (isset($this->file_particles[$particle][$randomId]))
 				break;
 		} while(1);
-		
+
 		$this->debug['particles_used'][$particle] = $this->file_particles[$particle][$randomId];
-		
+
 		return $this->file_particles[$particle][$randomId];
-		
+
 	}
-	
+
 	/**
 	 * retourne la liste des parties présente dans le fichier dictionnaire
 	 *
@@ -212,32 +295,33 @@ class mudnames_dico {
 	public function get_file_particle_list() {
 		return array_keys($this->file_particles);
 	}
-	
+
 	public function get_file_capability_list() {
 		return $this->capabilities;
 	}
-	
-	public function toString() {
-		return $this->file;
+
+	public function __toString() {
+		return $this->filename;
 	}
-	
+
 	/**
 	 * Retourne la version courte d'un tag
 	 */
 	public function pfull2lite($par) {
-		return $this->particle[$par];
+		return $this->_particle[$par];
 	}
 
 	/**
 	 * Retourne la version longue d'un tag
 	 */
 	public function plite2full($par) {
-		return array_search($par,$this->particle);
+		return array_search($par,$this->_particle);
 	}
-	
+
 	public function is_forced() {
 		return $this->forcedcap;
 	}
+
 }
 
 class mudnames {
