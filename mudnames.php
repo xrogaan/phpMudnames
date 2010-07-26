@@ -376,11 +376,7 @@ class Mudnames_Dictionnary {
 class Mudnames {
     protected static $_instance = null;
 
-    private $directory;
-    private $files = array();
     private $_dictionnaries;
-    private $particle_used = array();
-    private $capability;
     
     private $info = array(
         'dictionnaries' => '',
@@ -397,16 +393,14 @@ class Mudnames {
         }
     }
 
-    public static function getInstance($config = array(), $auto_create = true)
-    {
+    public static function getInstance($config = array(), $auto_create = true) {
         if ((bool) $auto_create && is_null(static::$_instance)) {
-            static::init($config);
+            static::$_instance = new static();
         }
         return static::$_instance;
     }
     
     public static function generate_name_from($file='') {
-
         $mudnames = Mudnames::getInstance();
         $dictionnary = $mudnames->_dictionnaries->open_dictionnary($file);
         $mudnames->_dictionnaries->get_name($file);
