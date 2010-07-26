@@ -73,6 +73,7 @@ class Mudnames_Dictionnaries {
             case 'random':
                 $keys = array_flip($this->_dictionnaries);
                 $name = $keys[rand(0,count($keys)-1)];
+                break;
             default:
                 if (!self::dictionnary_exists($name)) {
                     throw new UnexpectedValueException("Dictionnary '$name' doesn't exists.");
@@ -350,7 +351,7 @@ class Mudnames_Dictionnary {
     }
 
     public function __toString() {
-        return $this->filename;
+        return basename($this->filename);
     }
 
     /**
@@ -377,14 +378,7 @@ class Mudnames {
     protected static $_instance = null;
 
     private $_dictionnaries;
-    
-    private $info = array(
-        'dictionnaries' => '',
-        'particles_used' => array(),
-        'capability' => '',
-        'is_forced' => false,
-    );
-    
+     
     protected function __construct($config='') {
         if (!empty($config)) {
             $this->_dictionnaries = new Mudnames_Dictionnaries($config);
@@ -403,7 +397,7 @@ class Mudnames {
     public static function generate_name_from($file='') {
         $mudnames = Mudnames::getInstance();
         $dictionnary = $mudnames->_dictionnaries->open_dictionnary($file);
-        $mudnames->_dictionnaries->get_name($file);
+        $mudnames->_dictionnaries->get_name($dictionnary->__toString());
         
     }
 
