@@ -150,7 +150,7 @@ class Mudnames_Dictionnaries {
     }
 
     public function get_name_informations($dico, $name) {
-        if (!isset($this->_action['dictionnaries'][$dico]['generated'][$name]) {
+        if (!isset($this->_action['dictionnaries'][$dico]['generated'][$name])) {
             return false;
         }
         return $this->_actions['dictionnaries'][$dico]['generated'][$name];
@@ -451,11 +451,20 @@ class Mudnames {
     public static function get_info($file, $key) {
         $mudnames = Mudnames::getInstance();
 
-        $info = $mudnames->get_file_information($file);
+        $info = $mudnames->_dictionnaries->get_file_information($file);
         if (!isset($info[$key])) {
             return false;
         }
 
         return $info[$key];
+    }
+
+    /**
+     * Return an array of all the dictionnaries files
+     *
+     * @return array
+     */
+    public static function get_file_list() {
+        return array_keys(Mudnames::getInstance()->_dictionnaries->get_file_list());
     }
 }
