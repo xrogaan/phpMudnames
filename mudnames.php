@@ -121,7 +121,18 @@ class Mudnames_Dictionnaries {
         );
 
         return $name;
-    }
+	}
+
+	public function get_name_informations($dico, $name) {
+		if (!isset($this->_action['dictionnaries'][$dico]['generated'][$name]) {
+			return false;
+		}
+		return $this->_actions['dictionnaries'][$dico]['generated'][$name];
+	}
+
+	public function get_file_informatisons($file) {
+		return $this->_actions['dictionnaries'][$file]
+	}
 }
 
 class Mudnames_Dictionnary {
@@ -409,5 +420,16 @@ class Mudnames {
             $names[] = static::generate_name_from($file);
         }
         return $names;
-    }
+	}
+
+	public static function get_info($file, $key) {
+		$mudnames = Mudnames::getInstance();
+
+		$info = $mudnames->get_file_information($file);
+		if (!isset($info[$key])) {
+			return false;
+		}
+
+		return $info[$key];
+	}
 }
