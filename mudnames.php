@@ -50,7 +50,7 @@ class Mudnames_Dictionnaries {
             $this->_dictionnaries[$file] = $this->_directory . $file;
         }
         closedir($dh);
-        sort($this->_dictionnaries);
+        ksort($this->_dictionnaries);
     }
 
     /**
@@ -88,9 +88,8 @@ class Mudnames_Dictionnaries {
         switch ($name) {
             case '':
             case 'random':
-                $keys = array_flip($this->_dictionnaries);
+                $keys = array_keys($this->_dictionnaries);
                 $name = $keys[rand(0,count($keys)-1)];
-                break;
             default:
                 if (!self::dictionnary_exists($name)) {
                     throw new UnexpectedValueException("Dictionnary '$name' doesn't exists.");
@@ -156,8 +155,8 @@ class Mudnames_Dictionnaries {
         return $this->_actions['dictionnaries'][$dico]['generated'][$name];
     }
 
-    public function get_file_informatisons($file) {
-        return $this->_actions['dictionnaries'][$file]
+    public function get_file_informations($file) {
+        return $this->_actions['dictionnaries'][$file];
     }
 }
 
@@ -415,6 +414,8 @@ class Mudnames {
     protected static $_instance = null;
 
     private $_dictionnaries;
+    
+    private $latest_name, $latest_file;
      
     protected function __construct($config='') {
         if (!empty($config)) {
@@ -434,8 +435,9 @@ class Mudnames {
     public static function generate_name_from($file='') {
         $mudnames = Mudnames::getInstance();
         $dictionnary = $mudnames->_dictionnaries->open_dictionnary($file);
-        $mudnames->_dictionnaries->get_name($dictionnary->__toString());
-        
+        $mudnames->latest_file  = $dictionnary->__toString();
+        $mudnames->latest_name = $mudnames->_dictionnaries->get_name($dictionnary->__toString());
+        return $mudnames->latest_name;
     }
 
     public static function generates_several_names($number, $file='') {
@@ -448,10 +450,14 @@ class Mudnames {
         return $names;
     }
 
-    public static function get_info($file, $key) {
+    public static function get_info($key, $file='') {
         $mudnames = Mudnames::getInstance();
+        
+        if (empty($file)) {
+            $file = $mudnames->latest_file;
+        }
 
-        $info = $mudnames->_dictionnaries->get_file_information($file);
+        $info = $mudnames->_dictionnaries->get_file_informations($file);
         if (!isset($info[$key])) {
             return false;
         }
@@ -465,6 +471,6 @@ class Mudnames {
      * @return array
      */
     public static function get_file_list() {
-        return array_keys(Mudnames::getInstance()->_dictionnaries->get_file_list());
+        return array_keys(Mudnames::getInstance()->_dictionnaries->get_dictionnaries_list());
     }
 }

@@ -25,7 +25,7 @@ Nom g&eacute;n&eacute;r&eacute; : <input type="text" value="<?php echo $name ?>"
 <h1>Tips :</h1>
 <strong>Fichier utilis&eacute; :</strong> <?php echo Mudnames::get_info('file_used') ?><br/>
 <strong>Parties utilis&eacute;es :</strong> <?php print_r(Mudnames::get_info('particles_used')); ?><br/>
-<strong>Capacit&eacute; utilis&eacute;e :</strong> <?php echo Mudnames::get_info('capability') . ($gname->get_info('is_forced') ? ' -- <em>Forc&eacute;</em>' : ''); ?><br />
+<strong>Capacit&eacute; utilis&eacute;e :</strong> <?php echo Mudnames::get_info('capability') . (Mudnames::get_info('is_forced') ? ' -- <em>Forc&eacute;</em>' : ''); ?><br />
 <strong>Toutes les capacités :</strong> <?php echo Mudnames::get_info('capability_list'); ?>
 
 <h1>Fichiers de noms :</h1>
