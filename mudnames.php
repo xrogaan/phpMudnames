@@ -1,4 +1,5 @@
 <?php
+/* -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /**
  *  This code was inspired by MudNames by Ragnar Hojland Espinosa. <ragnar (at) ragnar-hojland (dot) com>
  *  This php version was written by Xrogaan. <xrogaan - gmail - com>
@@ -60,11 +61,11 @@ class Mudnames_Dictionnaries {
      */
     public function dictionnary_exists($name) {
         return array_key_exists($name, $this->_dictionnaries);
-	}
+    }
 
-	public function opened_dictionnary($name) {
-		return isset($this->_dictionnaries_instance[$name]);
-	}
+    public function opened_dictionnary($name) {
+        return isset($this->_dictionnaries_instance[$name]);
+    }
 
     public function open_dictionnary($name='random') {
         
@@ -125,18 +126,18 @@ class Mudnames_Dictionnaries {
         );
 
         return $name;
-	}
+    }
 
-	public function get_name_informations($dico, $name) {
-		if (!isset($this->_action['dictionnaries'][$dico]['generated'][$name]) {
-			return false;
-		}
-		return $this->_actions['dictionnaries'][$dico]['generated'][$name];
-	}
+    public function get_name_informations($dico, $name) {
+        if (!isset($this->_action['dictionnaries'][$dico]['generated'][$name]) {
+            return false;
+        }
+        return $this->_actions['dictionnaries'][$dico]['generated'][$name];
+    }
 
-	public function get_file_informatisons($file) {
-		return $this->_actions['dictionnaries'][$file]
-	}
+    public function get_file_informatisons($file) {
+        return $this->_actions['dictionnaries'][$file]
+    }
 }
 
 class Mudnames_Dictionnary {
@@ -424,16 +425,16 @@ class Mudnames {
             $names[] = static::generate_name_from($file);
         }
         return $names;
-	}
+    }
 
-	public static function get_info($file, $key) {
-		$mudnames = Mudnames::getInstance();
+    public static function get_info($file, $key) {
+        $mudnames = Mudnames::getInstance();
 
-		$info = $mudnames->get_file_information($file);
-		if (!isset($info[$key])) {
-			return false;
-		}
+        $info = $mudnames->get_file_information($file);
+        if (!isset($info[$key])) {
+            return false;
+        }
 
-		return $info[$key];
-	}
+        return $info[$key];
+    }
 }
