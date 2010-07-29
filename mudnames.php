@@ -60,11 +60,15 @@ class Mudnames_Dictionnaries {
      */
     public function dictionnary_exists($name) {
         return array_key_exists($name, $this->_dictionnaries);
-    }
+	}
+
+	public function opened_dictionnary($name) {
+		return isset($this->_dictionnaries_instance[$name]);
+	}
 
     public function open_dictionnary($name='random') {
         
-        if (isset($this->_dictionnaries_instance[$name])) {
+        if (self::opened_dictionnary($name)) {
             return $this->_dictionnaries_instance[$name];
         }
 
