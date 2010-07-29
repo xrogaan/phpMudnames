@@ -1,5 +1,5 @@
 <?php
-/* -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; expandtab -*- */
 /**
  *  This code was inspired by MudNames by Ragnar Hojland Espinosa. <ragnar (at) ragnar-hojland (dot) com>
  *  This php version was written by Xrogaan. <xrogaan - gmail - com>
@@ -63,10 +63,22 @@ class Mudnames_Dictionnaries {
         return array_key_exists($name, $this->_dictionnaries);
     }
 
+    /**
+     * Check if a dictionnary object is already loaded into memory.
+     *
+     * @param string $name
+     * @return boolean
+     */
     public function opened_dictionnary($name) {
         return isset($this->_dictionnaries_instance[$name]);
     }
 
+    /**
+     * Open a dictionnary object and return its instance.
+     *
+     * @param string $name
+     * @return Mydnames_Dictionnary
+     */
     public function open_dictionnary($name='random') {
         
         if (self::opened_dictionnary($name)) {
@@ -126,6 +138,15 @@ class Mudnames_Dictionnaries {
         );
 
         return $name;
+    }
+
+    /**
+     * Return a list of files indexed by their basename
+     *
+     * @return array
+     */
+    public function get_dictionnaries_list() {
+        return $this->_dictionnaries;
     }
 
     public function get_name_informations($dico, $name) {
