@@ -81,10 +81,6 @@ class Mudnames_Dictionnaries {
      */
     public function open_dictionnary($name='random') {
         
-        if (self::opened_dictionnary($name)) {
-            return $this->_dictionnaries_instance[$name];
-        }
-
         switch ($name) {
             case '':
             case 'random':
@@ -95,6 +91,11 @@ class Mudnames_Dictionnaries {
                     throw new UnexpectedValueException("Dictionnary '$name' doesn't exists.");
                 }
         }
+
+        if (self::opened_dictionnary($name)) {
+            return $this->_dictionnaries_instance[$name];
+        }
+
         $this->_dictionnaries_instance[$name] = new Mudnames_Dictionnary($this->_dictionnaries[$name]);
 
         $this->_actions['dictionnaries'][$name]['capabilities'] = $this->_dictionnaries_instance[$name]->get_file_capability_list();
@@ -277,8 +278,9 @@ class Mudnames_Dictionnary {
      * Sélectionne une association de capacité de façons aléatoire et la retourne.
      */
     public function select_capability() {
-
-        self::check_cap_file();
+        if($this->forced_capability == null) { //Not necessary to check file everytime
+            self::check_cap_file();
+        }
 
         // If a forced capability exists, we apply it.
         if (!empty($this->forced_capability)) {
